@@ -32,7 +32,9 @@ export function ChoreListForChild({ child }: Props) {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-brand-navy">{child.name}'s chores</h3>
+        <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+          {childChores.length === 0 ? 'No chores yet' : `${childChores.length} chore${childChores.length !== 1 ? 's' : ''}`}
+        </span>
         <Button size="sm" onClick={() => setAddOpen(true)}>+ Add</Button>
       </div>
 

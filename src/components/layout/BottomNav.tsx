@@ -21,9 +21,6 @@ export function BottomNav() {
                   size={24}
                   weight={isActive ? 'fill' : 'regular'}
                 />
-                {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-brand-blue" />
-                )}
               </div>
               <span className={`text-[10px] font-bold tracking-wide ${isActive ? 'text-brand-blue' : 'text-gray-400'}`}>
                 Home
@@ -47,9 +44,6 @@ export function BottomNav() {
                   size={24}
                   weight={isActive ? 'fill' : 'regular'}
                 />
-                {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-brand-blue" />
-                )}
               </div>
               <span className={`text-[10px] font-bold tracking-wide ${isActive ? 'text-brand-blue' : 'text-gray-400'}`}>
                 Settings

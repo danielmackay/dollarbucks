@@ -21,7 +21,7 @@ const sizes = {
 export function Button({ variant = 'primary', size = 'md', className = '', ...props }: Props) {
   return (
     <button
-      className={`rounded-xl font-ui font-semibold min-h-[44px] transition-opacity disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-ui font-semibold min-h-[44px] transition-opacity disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     />
   )
