@@ -11,12 +11,13 @@ interface Props {
 
 export function AllowanceProgressBar({ child, chores }: Props) {
   const weekStart = useAppStore((s) => s.currentWeekStartDate)
+  const today = useAppStore((s) => s.currentDate)
 
   if (child.weeklyAllowance == null) return null
 
   const allowanceChores = chores.filter((c) => c.scheme === 'allowance')
   if (allowanceChores.length === 0) return null
-  const weekDays = getWeekDays(weekStart)
+  const weekDays = getWeekDays(weekStart).filter((d) => d <= today)
   const { completed, total, pct } = getWeeklyProgress(allowanceChores, weekDays)
   const displayCompleted = allowanceChores.reduce((sum, c) => sum + getChoreDisplayCompletionCount(c, weekDays), 0)
   const displayTotal = allowanceChores.reduce((sum, c) => sum + getChoreDisplayMaxCompletions(c), 0)

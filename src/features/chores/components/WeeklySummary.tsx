@@ -1,5 +1,5 @@
 import { useAppStore } from '../../app/store'
-import { getWeekDays, getDayLabel, getToday } from '../dateHelpers'
+import { getWeekDays, getDayLabel } from '../dateHelpers'
 import { getDailyProgress, getWeeklyProgress } from '../completionHelpers'
 import type { Chore } from '../types'
 
@@ -9,9 +9,10 @@ interface Props {
 
 export function WeeklySummary({ chores }: Props) {
   const weekStart = useAppStore((s) => s.currentWeekStartDate)
+  const today = useAppStore((s) => s.currentDate)
   const weekDays = getWeekDays(weekStart)
-  const today = getToday()
-  const { pct: weeklyPct } = getWeeklyProgress(chores, weekDays)
+  const daysUpToToday = weekDays.filter((d) => d <= today)
+  const { pct: weeklyPct } = getWeeklyProgress(chores, daysUpToToday)
 
   const hasDailyChores = chores.some((c) => c.frequency === 'daily')
 

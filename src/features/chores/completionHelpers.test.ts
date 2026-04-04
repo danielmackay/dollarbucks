@@ -73,12 +73,17 @@ describe('getChoreWeeklyCompletionCount', () => {
 })
 
 describe('getChoreMaxCompletions', () => {
-  it('returns 7 for a daily chore', () => {
-    expect(getChoreMaxCompletions(makeChore({ frequency: 'daily' }))).toBe(7)
+  it('returns 7 for a daily chore over a full week', () => {
+    expect(getChoreMaxCompletions(makeChore({ frequency: 'daily' }), weekDays)).toBe(7)
   })
 
-  it('returns 7 for a weekly chore (equal weight to daily)', () => {
-    expect(getChoreMaxCompletions(makeChore({ frequency: 'weekly' }))).toBe(7)
+  it('returns 7 for a weekly chore over a full week (equal weight to daily)', () => {
+    expect(getChoreMaxCompletions(makeChore({ frequency: 'weekly' }), weekDays)).toBe(7)
+  })
+
+  it('returns the number of days passed in', () => {
+    const threeDays = weekDays.slice(0, 3)
+    expect(getChoreMaxCompletions(makeChore({ frequency: 'daily' }), threeDays)).toBe(3)
   })
 })
 

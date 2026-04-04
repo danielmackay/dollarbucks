@@ -1,15 +1,34 @@
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
 
 /** Format a Date as "YYYY-MM-DD" using local time (avoids UTC shift from toISOString). */
-function formatLocalDate(d: Date): string {
+export function formatLocalDate(d: Date): string {
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
 }
 
+// --- Dev-only date override ---
+let devDateOverride: string | null = null
+
+if (import.meta.env.DEV) {
+  devDateOverride = sessionStorage.getItem('dollarbucks-dev-date')
+}
+
+export function setDevDateOverride(date: string | null): void {
+  devDateOverride = date
+  if (date) {
+    sessionStorage.setItem('dollarbucks-dev-date', date)
+  } else {
+    sessionStorage.removeItem('dollarbucks-dev-date')
+  }
+}
+
 /** Returns today's date as "YYYY-MM-DD". */
 export function getToday(): string {
+  if (import.meta.env.DEV && devDateOverride) {
+    return devDateOverride
+  }
   return formatLocalDate(new Date())
 }
 

@@ -1,9 +1,14 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { BottomNav } from './components/layout/BottomNav'
 import { HomePage } from './pages/HomePage'
 import { ChildDetailPage } from './pages/ChildDetailPage'
 import { LedgerPage } from './pages/LedgerPage'
 import { SettingsPage } from './pages/SettingsPage'
+
+const DevDatePicker = import.meta.env.DEV
+  ? lazy(() => import('./components/DevDatePicker'))
+  : () => null
 
 export default function App() {
   return (
@@ -16,6 +21,11 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <BottomNav />
+      {import.meta.env.DEV && (
+        <Suspense fallback={null}>
+          <DevDatePicker />
+        </Suspense>
+      )}
     </div>
   )
 }

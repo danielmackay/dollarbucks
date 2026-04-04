@@ -17,8 +17,9 @@ export function ChildCard({ child }: Props) {
   const chores = useChoresStore(useShallow((s) => s.chores.filter((c) => c.childId === child.id)))
   const balance = useLedgerStore((s) => s.getBalanceForChild(child.id))
   const weekStart = useAppStore((s) => s.currentWeekStartDate)
+  const today = useAppStore((s) => s.currentDate)
 
-  const weekDays = getWeekDays(weekStart)
+  const weekDays = getWeekDays(weekStart).filter((d) => d <= today)
   const { completed: completedChores, total: totalChores, pct: progressPct } = getWeeklyProgress(chores, weekDays)
   const allDone = totalChores > 0 && completedChores === totalChores
   const isNegative = balance < 0

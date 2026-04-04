@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Check, CalendarDots } from '@phosphor-icons/react'
 import { useChoreActions } from '../useChoreActions'
 import { isChoreComplete } from '../completionHelpers'
-import { getToday } from '../dateHelpers'
+import { useAppStore } from '../../app/store'
 import type { Chore } from '../types'
 
 interface Props {
@@ -24,7 +24,7 @@ const PARTICLES = [
 export function ChoreItem({ chore }: Props) {
   const { toggleChore } = useChoreActions()
   const [bursting, setBursting] = useState(false)
-  const today = getToday()
+  const today = useAppStore((s) => s.currentDate)
   const complete = isChoreComplete(chore, today)
 
   function handleClick() {

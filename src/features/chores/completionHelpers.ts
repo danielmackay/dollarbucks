@@ -24,9 +24,9 @@ export function getChoreWeeklyCompletionCount(chore: Chore, weekDays: string[]):
   return weekDays.filter((day) => chore.completions[day] === true).length
 }
 
-/** Max weighted completions for a chore in a week: 7 for both daily and weekly. */
-export function getChoreMaxCompletions(_chore: Chore): number {
-  return 7
+/** Max weighted completions for a chore: weekDays.length for both daily and weekly. */
+export function getChoreMaxCompletions(_chore: Chore, weekDays: string[]): number {
+  return weekDays.length
 }
 
 /** Display completion count for UI: weekly chores show 0 or 1, daily chores show 0-7. */
@@ -47,7 +47,7 @@ export function getWeeklyProgress(
   chores: Chore[],
   weekDays: string[]
 ): { completed: number; total: number; pct: number } {
-  const total = chores.reduce((sum, c) => sum + getChoreMaxCompletions(c), 0)
+  const total = chores.reduce((sum, c) => sum + getChoreMaxCompletions(c, weekDays), 0)
   const completed = chores.reduce((sum, c) => sum + getChoreWeeklyCompletionCount(c, weekDays), 0)
   const pct = total === 0 ? 0 : Math.round((completed / total) * 100)
   return { completed, total, pct }

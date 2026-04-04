@@ -37,7 +37,7 @@ export function getResetSummary(): WeekResetSummary[] {
         0
       )
       const total = allowanceChores.reduce(
-        (sum, c) => sum + getChoreMaxCompletions(c),
+        (sum, c) => sum + getChoreMaxCompletions(c, weekDays),
         0
       )
       const ratio = total === 0 ? 0 : completed / total
