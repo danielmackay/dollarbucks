@@ -10,6 +10,7 @@ interface ChoresStore {
   setComplete: (id: string, isComplete: boolean) => void
   resetAllChores: () => void
   removeChoresForChild: (childId: string) => void
+  clearAll: () => void
 }
 
 export const useChoresStore = create<ChoresStore>()(
@@ -37,6 +38,7 @@ export const useChoresStore = create<ChoresStore>()(
         set((s) => ({ chores: s.chores.map((c) => ({ ...c, isComplete: false })) })),
       removeChoresForChild: (childId) =>
         set((s) => ({ chores: s.chores.filter((c) => c.childId !== childId) })),
+      clearAll: () => set({ chores: [] }),
     }),
     { name: 'dollarbucks-chores' }
   )

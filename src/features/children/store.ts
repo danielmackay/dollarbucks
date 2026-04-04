@@ -7,6 +7,7 @@ interface ChildrenStore {
   addChild: (data: Omit<Child, 'id'>) => void
   updateChild: (id: string, data: Partial<Omit<Child, 'id'>>) => void
   removeChild: (id: string) => void
+  clearAll: () => void
 }
 
 export const useChildrenStore = create<ChildrenStore>()(
@@ -21,6 +22,7 @@ export const useChildrenStore = create<ChildrenStore>()(
         })),
       removeChild: (id) =>
         set((s) => ({ children: s.children.filter((c) => c.id !== id) })),
+      clearAll: () => set({ children: [] }),
     }),
     { name: 'dollarbucks-children' }
   )

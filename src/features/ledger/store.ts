@@ -6,6 +6,7 @@ interface LedgerStore {
   entries: LedgerEntry[]
   addEntry: (data: Omit<LedgerEntry, 'id' | 'date'>) => void
   removeEntriesForChild: (childId: string) => void
+  clearAll: () => void
   reverseChoreEntry: (childId: string, description: string) => void
   getBalanceForChild: (childId: string) => number
   getEntriesForChild: (childId: string) => LedgerEntry[]
@@ -24,6 +25,7 @@ export const useLedgerStore = create<LedgerStore>()(
         })),
       removeEntriesForChild: (childId) =>
         set((s) => ({ entries: s.entries.filter((e) => e.childId !== childId) })),
+      clearAll: () => set({ entries: [] }),
       reverseChoreEntry: (childId, description) =>
         set((s) => {
           // Find the most recent chore_fixed entry matching this description and remove it

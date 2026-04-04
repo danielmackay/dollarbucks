@@ -1,14 +1,25 @@
 import { useState } from 'react'
-import { ArrowsClockwise, GearSix, Users, Star } from '@phosphor-icons/react'
+import { ArrowsClockwise, GearSix, Users, Star, Warning } from '@phosphor-icons/react'
 import { ChildList } from '../features/children/components/ChildList'
 import { ChoreListForChild } from '../features/chores/components/ChoreListForChild'
 import { WeeklyResetModal } from '../features/ledger/components/WeeklyResetModal'
 import { Button } from '../components/ui/Button'
+import { Modal } from '../components/ui/Modal'
 import { useChildrenStore } from '../features/children/store'
+import { useChoresStore } from '../features/chores/store'
+import { useLedgerStore } from '../features/ledger/store'
 
 export function SettingsPage() {
   const children = useChildrenStore((s) => s.children)
   const [resetOpen, setResetOpen] = useState(false)
+  const [nukeOpen, setNukeOpen] = useState(false)
+
+  function handleNuke() {
+    useChildrenStore.getState().clearAll()
+    useChoresStore.getState().clearAll()
+    useLedgerStore.getState().clearAll()
+    setNukeOpen(false)
+  }
 
   return (
     <main>
@@ -111,9 +122,52 @@ export function SettingsPage() {
           </div>
         </section>
 
+        {/* ── Danger zone ── */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+              <Warning size={15} weight="bold" className="text-red-500" />
+            </div>
+            <h2 className="font-display text-base font-extrabold text-red-500">Danger zone</h2>
+          </div>
+
+          <div className="bg-red-50 rounded-2xl border border-red-100 p-4">
+            <p className="text-sm text-red-700/80 mb-4 leading-relaxed">
+              Permanently deletes all children, chores, and transaction history. This cannot be undone.
+            </p>
+            <Button
+              variant="danger"
+              className="w-full"
+              onClick={() => setNukeOpen(true)}
+            >
+              <Warning size={16} weight="bold" />
+              Reset all data.
+            </Button>
+          </div>
+        </section>
+
       </div>
 
       <WeeklyResetModal open={resetOpen} onClose={() => setResetOpen(false)} />
+
+      <Modal open={nukeOpen} onClose={() => setNukeOpen(false)} title="Reset all data?">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-start gap-3 bg-red-50 rounded-xl p-3">
+            <Warning size={20} weight="fill" className="text-red-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700 leading-relaxed">
+              This will permanently delete <strong>all children, chores, and every transaction</strong> in the ledger. There is no way to recover this data.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => setNukeOpen(false)} className="flex-1">
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleNuke} className="flex-1">
+              Delete everything
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </main>
   )
 }
