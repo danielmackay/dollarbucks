@@ -10,12 +10,12 @@ interface Props {
 }
 
 export function AllowanceProgressBar({ child, chores }: Props) {
+  const weekStart = useAppStore((s) => s.currentWeekStartDate)
+
   if (child.weeklyAllowance == null) return null
 
   const allowanceChores = chores.filter((c) => c.scheme === 'allowance')
   if (allowanceChores.length === 0) return null
-
-  const weekStart = useAppStore((s) => s.currentWeekStartDate)
   const weekDays = getWeekDays(weekStart)
   const { completed, total, pct } = getWeeklyProgress(allowanceChores, weekDays)
   const projected = total === 0 ? 0 : Math.round((completed / total) * child.weeklyAllowance * 100) / 100
