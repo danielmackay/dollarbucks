@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useChoresStore } from '../store'
 import { useLedgerStore } from '../../ledger/store'
+import { isChoreComplete } from '../completionHelpers'
 import { Modal } from '../../../components/ui/Modal'
 import { Button } from '../../../components/ui/Button'
 import { ChoreForm } from './ChoreForm'
@@ -22,7 +23,7 @@ export function ChoreListForChild({ child }: Props) {
 
   function handleDelete(chore: Chore) {
     // If chore was completed and fixed, reverse its ledger entry
-    if (chore.isComplete && chore.scheme === 'fixed') {
+    if (isChoreComplete(chore) && chore.scheme === 'fixed') {
       reverseChoreEntry(chore.childId, chore.name)
     }
     removeChore(chore.id)
@@ -53,6 +54,8 @@ export function ChoreListForChild({ child }: Props) {
               {chore.scheme === 'fixed'
                 ? `$${chore.fixedAmount?.toFixed(2)} fixed`
                 : 'Weekly allowance'}
+              {' · '}
+              {chore.frequency === 'daily' ? 'Daily' : 'Weekly'}
             </div>
           </div>
           <button
@@ -94,7 +97,7 @@ export function ChoreListForChild({ child }: Props) {
           <div className="flex flex-col gap-4">
             <p className="text-gray-700">
               Remove <strong>{deleteChore.name}</strong>?
-              {deleteChore.isComplete && deleteChore.scheme === 'fixed' && (
+              {isChoreComplete(deleteChore) && deleteChore.scheme === 'fixed' && (
                 <span className="block text-sm text-amber-600 mt-1">
                   The earned amount will be reversed from the ledger.
                 </span>

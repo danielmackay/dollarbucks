@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
-import { ArrowLeft, Coin, ClipboardText, ArrowFatLineDown } from '@phosphor-icons/react'
+import { ArrowLeft, Coin, ClipboardText, ArrowFatLineDown, ChartBar } from '@phosphor-icons/react'
 import { useChildrenStore } from '../features/children/store'
 import { useChoresStore } from '../features/chores/store'
 import { useLedgerStore } from '../features/ledger/store'
 import { ChoreItem } from '../features/chores/components/ChoreItem'
 import { AllowanceProgressBar } from '../features/chores/components/AllowanceProgressBar'
+import { WeeklySummary } from '../features/chores/components/WeeklySummary'
 import { Button } from '../components/ui/Button'
 import { WithdrawalModal } from '../features/ledger/components/WithdrawalModal'
 
@@ -21,6 +22,7 @@ export function ChildDetailPage() {
   const chores = useChoresStore(useShallow((s) => s.chores.filter((c) => c.childId === childId)))
   const balance = useLedgerStore((s) => s.getBalanceForChild(childId!))
   const [withdrawOpen, setWithdrawOpen] = useState(false)
+  const [summaryOpen, setSummaryOpen] = useState(false)
 
   if (!child) {
     return (
@@ -96,10 +98,28 @@ export function ChildDetailPage() {
         <AllowanceProgressBar child={child} chores={chores} />
       </div>
 
+      {/* ── Weekly summary toggle ── */}
+      {chores.some((c) => c.frequency === 'daily') && (
+        <div className="px-4 mt-3">
+          <button
+            onClick={() => setSummaryOpen(!summaryOpen)}
+            className="w-full flex items-center justify-center gap-2 text-sm font-bold text-brand-blue py-2 rounded-xl bg-brand-blue/5 active:bg-brand-blue/10 transition-colors"
+          >
+            <ChartBar size={16} weight="bold" />
+            {summaryOpen ? 'Hide weekly summary' : 'View weekly summary'}
+          </button>
+          {summaryOpen && (
+            <div className="mt-3 animate-slide-up">
+              <WeeklySummary chores={chores} />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Chore list ── */}
       <div className="px-4 mt-5">
         <h2 className="font-display text-lg font-extrabold text-brand-navy mb-3">
-          This week's chores
+          Today's chores
         </h2>
         {chores.length === 0 ? (
           <p className="text-gray-400 font-semibold text-sm py-4 text-center">

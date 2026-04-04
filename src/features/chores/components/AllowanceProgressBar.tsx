@@ -1,5 +1,8 @@
 import type { Child } from '../../children/types'
 import type { Chore } from '../types'
+import { useAppStore } from '../../app/store'
+import { getWeekDays } from '../dateHelpers'
+import { getWeeklyProgress } from '../completionHelpers'
 
 interface Props {
   child: Child
@@ -12,10 +15,10 @@ export function AllowanceProgressBar({ child, chores }: Props) {
   const allowanceChores = chores.filter((c) => c.scheme === 'allowance')
   if (allowanceChores.length === 0) return null
 
-  const completed = allowanceChores.filter((c) => c.isComplete).length
-  const total = allowanceChores.length
-  const pct = Math.round((completed / total) * 100)
-  const projected = Math.round((completed / total) * child.weeklyAllowance * 100) / 100
+  const weekStart = useAppStore((s) => s.currentWeekStartDate)
+  const weekDays = getWeekDays(weekStart)
+  const { completed, total, pct } = getWeeklyProgress(allowanceChores, weekDays)
+  const projected = total === 0 ? 0 : Math.round((completed / total) * child.weeklyAllowance * 100) / 100
   const allDone = completed === total
 
   const fmt = (n: number) =>
@@ -29,7 +32,7 @@ export function AllowanceProgressBar({ child, chores }: Props) {
             Weekly allowance
           </div>
           <div className="text-xs font-semibold text-gray-400 mt-0.5">
-            {completed}/{total} chores · {fmt(child.weeklyAllowance)} max
+            {completed}/{total} completions · {fmt(child.weeklyAllowance)} max
           </div>
         </div>
         <div className="text-right">
@@ -56,21 +59,6 @@ export function AllowanceProgressBar({ child, chores }: Props) {
           }}
         />
       </div>
-
-      {/* Segment ticks */}
-      {total > 1 && (
-        <div className="flex mt-1.5 px-0">
-          {Array.from({ length: total - 1 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-1 flex justify-end"
-              style={{ flexBasis: `${100 / total}%` }}
-            >
-              <div className="w-px h-1.5 bg-gray-200 -mt-0.5" />
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

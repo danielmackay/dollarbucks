@@ -1,0 +1,144 @@
+import { describe, it, expect } from 'vitest'
+import {
+  isChoreComplete,
+  getChoreWeeklyCompletionCount,
+  getChoreMaxCompletions,
+  getWeeklyProgress,
+  getDailyProgress,
+} from './completionHelpers'
+import type { Chore } from './types'
+
+const weekDays = ['2026-04-06', '2026-04-07', '2026-04-08', '2026-04-09', '2026-04-10', '2026-04-11', '2026-04-12']
+
+function makeChore(overrides: Partial<Chore> = {}): Chore {
+  return {
+    id: 'c1',
+    childId: 'k1',
+    name: 'Test chore',
+    scheme: 'allowance',
+    fixedAmount: null,
+    frequency: 'daily',
+    completions: {},
+    createdAt: '2026-01-01T00:00:00.000Z',
+    ...overrides,
+  }
+}
+
+describe('isChoreComplete', () => {
+  it('returns true for a completed weekly chore', () => {
+    const chore = makeChore({ frequency: 'weekly', completions: { week: true } })
+    expect(isChoreComplete(chore)).toBe(true)
+  })
+
+  it('returns false for an incomplete weekly chore', () => {
+    const chore = makeChore({ frequency: 'weekly', completions: {} })
+    expect(isChoreComplete(chore)).toBe(false)
+  })
+
+  it('returns true for a daily chore completed on the given date', () => {
+    const chore = makeChore({ completions: { '2026-04-07': true } })
+    expect(isChoreComplete(chore, '2026-04-07')).toBe(true)
+  })
+
+  it('returns false for a daily chore not completed on the given date', () => {
+    const chore = makeChore({ completions: { '2026-04-06': true } })
+    expect(isChoreComplete(chore, '2026-04-07')).toBe(false)
+  })
+})
+
+describe('getChoreWeeklyCompletionCount', () => {
+  it('returns 1 for a completed weekly chore', () => {
+    const chore = makeChore({ frequency: 'weekly', completions: { week: true } })
+    expect(getChoreWeeklyCompletionCount(chore, weekDays)).toBe(1)
+  })
+
+  it('returns 0 for an incomplete weekly chore', () => {
+    const chore = makeChore({ frequency: 'weekly', completions: {} })
+    expect(getChoreWeeklyCompletionCount(chore, weekDays)).toBe(0)
+  })
+
+  it('counts daily completions across the week', () => {
+    const chore = makeChore({
+      completions: {
+        '2026-04-06': true,
+        '2026-04-07': true,
+        '2026-04-09': true,
+        '2026-04-12': true,
+      },
+    })
+    expect(getChoreWeeklyCompletionCount(chore, weekDays)).toBe(4)
+  })
+})
+
+describe('getChoreMaxCompletions', () => {
+  it('returns 7 for a daily chore', () => {
+    expect(getChoreMaxCompletions(makeChore({ frequency: 'daily' }))).toBe(7)
+  })
+
+  it('returns 1 for a weekly chore', () => {
+    expect(getChoreMaxCompletions(makeChore({ frequency: 'weekly' }))).toBe(1)
+  })
+})
+
+describe('getWeeklyProgress', () => {
+  it('calculates progress for mixed daily and weekly chores', () => {
+    const chores = [
+      makeChore({
+        id: 'c1',
+        frequency: 'daily',
+        completions: {
+          '2026-04-06': true,
+          '2026-04-07': true,
+          '2026-04-08': true,
+        },
+      }),
+      makeChore({
+        id: 'c2',
+        frequency: 'daily',
+        completions: {
+          '2026-04-06': true,
+          '2026-04-07': true,
+        },
+      }),
+      makeChore({
+        id: 'c3',
+        frequency: 'weekly',
+        completions: { week: true },
+      }),
+    ]
+    // total = 7 + 7 + 1 = 15, completed = 3 + 2 + 1 = 6
+    const result = getWeeklyProgress(chores, weekDays)
+    expect(result.total).toBe(15)
+    expect(result.completed).toBe(6)
+    expect(result.pct).toBe(40)
+  })
+
+  it('returns zeros for empty chore list', () => {
+    expect(getWeeklyProgress([], weekDays)).toEqual({ completed: 0, total: 0, pct: 0 })
+  })
+})
+
+describe('getDailyProgress', () => {
+  it('counts only daily chores for a specific day', () => {
+    const chores = [
+      makeChore({ id: 'c1', completions: { '2026-04-07': true } }),
+      makeChore({ id: 'c2', completions: { '2026-04-07': true } }),
+      makeChore({ id: 'c3', completions: {} }),
+    ]
+    const result = getDailyProgress(chores, '2026-04-07')
+    expect(result.completed).toBe(2)
+    expect(result.total).toBe(3)
+    expect(result.pct).toBe(67)
+  })
+
+  it('ignores weekly chores', () => {
+    const chores = [
+      makeChore({ id: 'c1', completions: { '2026-04-07': true } }),
+      makeChore({ id: 'c2', frequency: 'weekly', completions: { week: true } }),
+    ]
+    const result = getDailyProgress(chores, '2026-04-07')
+    expect(result.completed).toBe(1)
+    expect(result.total).toBe(1)
+    expect(result.pct).toBe(100)
+  })
+})

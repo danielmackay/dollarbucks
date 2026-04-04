@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { Check } from '@phosphor-icons/react'
+import { Check, CalendarDots } from '@phosphor-icons/react'
 import { useChoreActions } from '../useChoreActions'
+import { isChoreComplete } from '../completionHelpers'
+import { getToday } from '../dateHelpers'
 import type { Chore } from '../types'
 
 interface Props {
@@ -22,22 +24,24 @@ const PARTICLES = [
 export function ChoreItem({ chore }: Props) {
   const { toggleChore } = useChoreActions()
   const [bursting, setBursting] = useState(false)
+  const today = getToday()
+  const complete = isChoreComplete(chore, today)
 
   function handleClick() {
-    if (!chore.isComplete) {
+    if (!complete) {
       setBursting(true)
       setTimeout(() => setBursting(false), 800)
     }
-    toggleChore(chore)
+    toggleChore(chore, today)
   }
 
-  const showBurst = bursting && chore.isComplete
+  const showBurst = bursting && complete
 
   return (
     <button
       onClick={handleClick}
       className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 transition-all duration-200 text-left ${
-        chore.isComplete
+        complete
           ? 'border-brand-green/40 active:scale-[0.98]'
           : 'bg-white border-gray-100 shadow-sm active:scale-[0.97]'
       }`}
@@ -68,7 +72,7 @@ export function ChoreItem({ chore }: Props) {
         {/* The circle itself */}
         <div
           className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
-            chore.isComplete
+            complete
               ? 'bg-brand-green border-brand-green'
               : 'border-gray-300 bg-white'
           }`}
@@ -78,26 +82,34 @@ export function ChoreItem({ chore }: Props) {
               : undefined
           }
         >
-          {chore.isComplete && (
+          {complete && (
             <Check weight="bold" size={15} className="text-white" />
           )}
         </div>
       </div>
 
-      {/* Chore name */}
-      <span
-        className={`flex-1 font-bold text-[15px] transition-colors duration-200 ${
-          chore.isComplete ? 'line-through text-gray-400' : 'text-gray-800'
-        }`}
-      >
-        {chore.name}
-      </span>
+      {/* Chore name + frequency badge */}
+      <div className="flex-1 min-w-0">
+        <span
+          className={`font-bold text-[15px] transition-colors duration-200 ${
+            complete ? 'line-through text-gray-400' : 'text-gray-800'
+          }`}
+        >
+          {chore.name}
+        </span>
+        {chore.frequency === 'daily' && (
+          <span className="ml-2 inline-flex items-center gap-0.5 text-[10px] font-bold text-brand-blue/60 bg-brand-blue/10 rounded-full px-1.5 py-0.5 uppercase tracking-wide align-middle">
+            <CalendarDots size={10} weight="bold" />
+            daily
+          </span>
+        )}
+      </div>
 
       {/* Scheme badge */}
       {chore.scheme === 'fixed' ? (
         <span
           className={`text-sm font-extrabold tabular-nums transition-colors ${
-            chore.isComplete ? 'text-brand-green' : 'text-brand-orange'
+            complete ? 'text-brand-green' : 'text-brand-orange'
           }`}
         >
           ${chore.fixedAmount?.toFixed(2)}

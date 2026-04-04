@@ -3,6 +3,9 @@ import { useShallow } from 'zustand/react/shallow'
 import { CaretRight } from '@phosphor-icons/react'
 import { useChoresStore } from '../../chores/store'
 import { useLedgerStore } from '../../ledger/store'
+import { useAppStore } from '../../app/store'
+import { getWeekDays } from '../../chores/dateHelpers'
+import { getWeeklyProgress } from '../../chores/completionHelpers'
 import type { Child } from '../types'
 
 interface Props {
@@ -13,10 +16,10 @@ export function ChildCard({ child }: Props) {
   const navigate = useNavigate()
   const chores = useChoresStore(useShallow((s) => s.chores.filter((c) => c.childId === child.id)))
   const balance = useLedgerStore((s) => s.getBalanceForChild(child.id))
+  const weekStart = useAppStore((s) => s.currentWeekStartDate)
 
-  const totalChores = chores.length
-  const completedChores = chores.filter((c) => c.isComplete).length
-  const progressPct = totalChores === 0 ? 0 : (completedChores / totalChores) * 100
+  const weekDays = getWeekDays(weekStart)
+  const { completed: completedChores, total: totalChores, pct: progressPct } = getWeeklyProgress(chores, weekDays)
   const allDone = totalChores > 0 && completedChores === totalChores
   const isNegative = balance < 0
 
@@ -63,7 +66,7 @@ export function ChildCard({ child }: Props) {
               ? 'No chores yet'
               : allDone
               ? 'All done!'
-              : `${completedChores} of ${totalChores} chores`}
+              : `${completedChores} of ${totalChores} completions`}
           </span>
           {totalChores > 0 && (
             <span className="text-[11px] font-bold" style={{ color: child.avatarColour }}>

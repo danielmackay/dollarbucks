@@ -1,15 +1,18 @@
 import { useChoresStore } from './store'
 import { useLedgerStore } from '../ledger/store'
+import { getCompletionKey, isChoreComplete } from './completionHelpers'
 import type { Chore } from './types'
 
 /**
  * Pure business logic — no React hooks, usable in tests.
  * For fixed chores: posts or reverses a ledger entry immediately (BR-04).
- * For allowance chores: only flips isComplete — no ledger entry (BR-05).
+ * For allowance chores: only flips completion — no ledger entry (BR-05).
+ * @param date — ISO date string for daily chores; ignored for weekly chores.
  */
-export function toggleChore(chore: Chore) {
-  const nowComplete = !chore.isComplete
-  useChoresStore.getState().setComplete(chore.id, nowComplete)
+export function toggleChore(chore: Chore, date?: string) {
+  const key = getCompletionKey(chore, date)
+  const nowComplete = !isChoreComplete(chore, date)
+  useChoresStore.getState().setCompletion(chore.id, key, nowComplete)
 
   if (chore.scheme === 'fixed' && chore.fixedAmount != null) {
     if (nowComplete) {

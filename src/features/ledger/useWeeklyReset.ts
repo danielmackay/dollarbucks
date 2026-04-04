@@ -2,6 +2,8 @@ import { useChildrenStore } from '../children/store'
 import { useChoresStore } from '../chores/store'
 import { useLedgerStore } from './store'
 import { useAppStore } from '../app/store'
+import { getWeekDays } from '../chores/dateHelpers'
+import { getChoreWeeklyCompletionCount, getChoreMaxCompletions } from '../chores/completionHelpers'
 
 export interface WeekResetSummary {
   childId: string
@@ -14,10 +16,14 @@ export interface WeekResetSummary {
 /**
  * Pure business logic — no React hooks, usable in tests.
  * Computes a preview of what the weekly reset will post.
+ * Formula: (total completions across week) / (total possible completions) × weeklyAllowance
+ * Daily chores count for up to 7 completions, weekly chores count for 1.
  */
 export function getResetSummary(): WeekResetSummary[] {
   const { children } = useChildrenStore.getState()
   const { chores } = useChoresStore.getState()
+  const { currentWeekStartDate } = useAppStore.getState()
+  const weekDays = getWeekDays(currentWeekStartDate)
 
   return children
     .filter((child) => child.weeklyAllowance != null)
@@ -25,8 +31,14 @@ export function getResetSummary(): WeekResetSummary[] {
       const allowanceChores = chores.filter(
         (c) => c.childId === child.id && c.scheme === 'allowance'
       )
-      const completed = allowanceChores.filter((c) => c.isComplete).length
-      const total = allowanceChores.length
+      const completed = allowanceChores.reduce(
+        (sum, c) => sum + getChoreWeeklyCompletionCount(c, weekDays),
+        0
+      )
+      const total = allowanceChores.reduce(
+        (sum, c) => sum + getChoreMaxCompletions(c),
+        0
+      )
       const ratio = total === 0 ? 0 : completed / total
       const allowanceEarned =
         total === 0 ? 0 : Math.round(child.weeklyAllowance! * ratio * 100) / 100
