@@ -1,21 +1,63 @@
 import { NavLink } from 'react-router-dom'
+import { House, GearSix } from '@phosphor-icons/react'
 
 export function BottomNav() {
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex flex-col items-center text-xs gap-1 py-2 px-4 ${
-      isActive ? 'text-brand-blue font-semibold' : 'text-gray-400'
-    }`
-
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around max-w-lg mx-auto">
-      <NavLink to="/" end className={linkClass}>
-        <span className="text-2xl">🏠</span>
-        <span>Home</span>
-      </NavLink>
-      <NavLink to="/settings" className={linkClass}>
-        <span className="text-2xl">⚙️</span>
-        <span>Settings</span>
-      </NavLink>
+    <nav className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white/90 backdrop-blur-sm border-t border-gray-100">
+      <div className="flex">
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            `flex flex-1 flex-col items-center gap-0.5 pt-3 pb-4 transition-colors ${
+              isActive ? 'text-brand-blue' : 'text-gray-400'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <div className={`relative transition-transform ${isActive ? 'scale-110' : ''}`}>
+                <House
+                  size={24}
+                  weight={isActive ? 'fill' : 'regular'}
+                />
+                {isActive && (
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-brand-blue" />
+                )}
+              </div>
+              <span className={`text-[10px] font-bold tracking-wide ${isActive ? 'text-brand-blue' : 'text-gray-400'}`}>
+                Home
+              </span>
+            </>
+          )}
+        </NavLink>
+
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `flex flex-1 flex-col items-center gap-0.5 pt-3 pb-4 transition-colors ${
+              isActive ? 'text-brand-blue' : 'text-gray-400'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <div className={`relative transition-transform ${isActive ? 'scale-110' : ''}`}>
+                <GearSix
+                  size={24}
+                  weight={isActive ? 'fill' : 'regular'}
+                />
+                {isActive && (
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-brand-blue" />
+                )}
+              </div>
+              <span className={`text-[10px] font-bold tracking-wide ${isActive ? 'text-brand-blue' : 'text-gray-400'}`}>
+                Settings
+              </span>
+            </>
+          )}
+        </NavLink>
+      </div>
     </nav>
   )
 }

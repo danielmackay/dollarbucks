@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { Check } from '@phosphor-icons/react'
 import { useChoreActions } from '../useChoreActions'
 import type { Chore } from '../types'
 
@@ -5,45 +7,103 @@ interface Props {
   chore: Chore
 }
 
+// Eight particles at evenly-spaced angles, using brand colours
+const PARTICLES = [
+  { tx: -52, ty: -52, color: '#F5C842' },
+  { tx:   0, ty: -72, color: '#E8821A' },
+  { tx:  52, ty: -52, color: '#4CAF6E' },
+  { tx:  72, ty:   0, color: '#1B5FA8' },
+  { tx:  52, ty:  52, color: '#F5C842' },
+  { tx:   0, ty:  72, color: '#E8821A' },
+  { tx: -52, ty:  52, color: '#4CAF6E' },
+  { tx: -72, ty:   0, color: '#1B5FA8' },
+]
+
 export function ChoreItem({ chore }: Props) {
   const { toggleChore } = useChoreActions()
+  const [bursting, setBursting] = useState(false)
+
+  function handleClick() {
+    if (!chore.isComplete) {
+      setBursting(true)
+      setTimeout(() => setBursting(false), 800)
+    }
+    toggleChore(chore)
+  }
+
+  const showBurst = bursting && chore.isComplete
 
   return (
     <button
-      onClick={() => toggleChore(chore)}
-      className={`w-full flex items-center gap-3 p-4 rounded-xl border transition-colors ${
+      onClick={handleClick}
+      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 transition-all duration-200 text-left ${
         chore.isComplete
-          ? 'bg-brand-green/10 border-brand-green'
-          : 'bg-white border-gray-200'
+          ? 'border-brand-green/40 active:scale-[0.98]'
+          : 'bg-white border-gray-100 shadow-sm active:scale-[0.97]'
       }`}
+      style={
+        showBurst
+          ? { animation: 'chore-row-flash 0.5s ease-out both' }
+          : undefined
+      }
     >
-      {/* Checkbox circle */}
-      <div
-        className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 ${
-          chore.isComplete
-            ? 'bg-brand-green border-brand-green text-white'
-            : 'border-gray-300'
-        }`}
-      >
-        {chore.isComplete && <span className="text-sm">✓</span>}
+      {/* Check circle — particles burst from here */}
+      <div className="relative shrink-0">
+        {/* Confetti particles */}
+        {showBurst &&
+          PARTICLES.map((p, i) => (
+            <span
+              key={i}
+              className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2"
+              style={{
+                backgroundColor: p.color,
+                '--tx': `${p.tx}px`,
+                '--ty': `${p.ty}px`,
+                animation: `particle-burst 0.55s cubic-bezier(0.15, 0, 0.5, 1) forwards`,
+                animationDelay: `${i * 18}ms`,
+              } as React.CSSProperties}
+            />
+          ))}
+
+        {/* The circle itself */}
+        <div
+          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
+            chore.isComplete
+              ? 'bg-brand-green border-brand-green'
+              : 'border-gray-300 bg-white'
+          }`}
+          style={
+            showBurst
+              ? { animation: 'check-bounce 0.45s cubic-bezier(0.2, 0, 0.4, 2) both' }
+              : undefined
+          }
+        >
+          {chore.isComplete && (
+            <Check weight="bold" size={15} className="text-white" />
+          )}
+        </div>
       </div>
 
-      {/* Name */}
+      {/* Chore name */}
       <span
-        className={`flex-1 text-left text-base font-ui ${
+        className={`flex-1 font-bold text-[15px] transition-colors duration-200 ${
           chore.isComplete ? 'line-through text-gray-400' : 'text-gray-800'
         }`}
       >
         {chore.name}
       </span>
 
-      {/* Badge */}
+      {/* Scheme badge */}
       {chore.scheme === 'fixed' ? (
-        <span className="text-sm font-semibold text-brand-orange">
+        <span
+          className={`text-sm font-extrabold tabular-nums transition-colors ${
+            chore.isComplete ? 'text-brand-green' : 'text-brand-orange'
+          }`}
+        >
           ${chore.fixedAmount?.toFixed(2)}
         </span>
       ) : (
-        <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+        <span className="text-[11px] font-bold text-gray-400 bg-gray-100 rounded-full px-2.5 py-1 uppercase tracking-wide">
           allowance
         </span>
       )}

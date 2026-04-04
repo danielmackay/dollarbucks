@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowsClockwise } from '@phosphor-icons/react'
 import { PageHeader } from '../components/ui/PageHeader'
 import { ChildList } from '../features/children/components/ChildList'
 import { ChoreListForChild } from '../features/chores/components/ChoreListForChild'
@@ -26,7 +27,8 @@ export function SettingsPage() {
             className="w-full"
             onClick={() => setResetOpen(true)}
           >
-            🔄 Reset week
+            <ArrowsClockwise size={16} weight="bold" />
+            Reset week
           </Button>
           <p className="text-xs text-gray-400 mt-2 text-center">
             Posts allowance earnings and clears all chore completions.

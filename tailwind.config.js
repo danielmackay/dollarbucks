@@ -14,8 +14,12 @@ export default {
         },
       },
       fontFamily: {
-        display: ['Georgia', 'serif'],
-        ui:      ['system-ui', 'sans-serif'],
+        display: ['Nunito', 'sans-serif'],
+        ui:      ['Nunito', 'sans-serif'],
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
       },
     },
   },
