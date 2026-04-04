@@ -9,7 +9,7 @@ const variants = {
   primary: 'bg-brand-blue text-white active:bg-blue-900',
   secondary: 'bg-brand-orange text-white active:bg-orange-700',
   danger: 'bg-red-500 text-white active:bg-red-700',
-  ghost: 'bg-transparent text-brand-blue border border-brand-blue',
+  ghost: 'bg-transparent text-brand-blue border border-brand-blue hover:bg-brand-blue/5',
 }
 
 const sizes = {
@@ -21,7 +21,7 @@ const sizes = {
 export function Button({ variant = 'primary', size = 'md', className = '', ...props }: Props) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-xl font-ui font-semibold min-h-[44px] transition-opacity disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-ui font-semibold min-h-[44px] transition-all disabled:opacity-50 active:scale-[0.98] ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     />
   )

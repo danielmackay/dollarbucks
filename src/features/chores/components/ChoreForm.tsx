@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { CurrencyDollar, CalendarDots, ArrowsClockwise, NumberOne } from '@phosphor-icons/react'
 import { Input } from '../../../components/ui/Input'
 import { Button } from '../../../components/ui/Button'
+import { ToggleGroup } from '../../../components/ui/ToggleGroup'
 import type { Chore, EarningScheme, ChoreFrequency } from '../types'
 
 interface Props {
@@ -10,6 +12,26 @@ interface Props {
   onCancel: () => void
 }
 
+const earningOptions: { value: EarningScheme; label: React.ReactNode }[] = [
+  { value: 'fixed', label: <><CurrencyDollar size={18} weight="bold" /> Fixed amount</> },
+  { value: 'allowance', label: <><CalendarDots size={18} weight="bold" /> Weekly allowance</> },
+]
+
+const frequencyOptions: { value: ChoreFrequency; label: React.ReactNode }[] = [
+  { value: 'daily', label: <><ArrowsClockwise size={18} weight="bold" /> Daily</> },
+  { value: 'weekly', label: <><NumberOne size={18} weight="bold" /> Weekly</> },
+]
+
+const earningDescriptions: Record<EarningScheme, string> = {
+  fixed: 'Earns a fixed $ amount when marked complete.',
+  allowance: 'Contributes to weekly allowance % when complete.',
+}
+
+const frequencyDescriptions: Record<ChoreFrequency, string> = {
+  daily: 'Can be completed each day of the week.',
+  weekly: 'Completed once for the whole week.',
+}
+
 export function ChoreForm({ childId, initial, onSubmit, onCancel }: Props) {
   const [name, setName] = useState(initial?.name ?? '')
   const [scheme, setScheme] = useState<EarningScheme>(initial?.scheme ?? 'fixed')
@@ -17,6 +39,7 @@ export function ChoreForm({ childId, initial, onSubmit, onCancel }: Props) {
   const [amount, setAmount] = useState(initial?.fixedAmount?.toString() ?? '')
   const [nameError, setNameError] = useState('')
   const [amountError, setAmountError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   function handleSubmit() {
     let valid = true
@@ -26,6 +49,7 @@ export function ChoreForm({ childId, initial, onSubmit, onCancel }: Props) {
     }
     if (!valid) return
 
+    setSubmitting(true)
     onSubmit({
       childId,
       name: name.trim(),
@@ -46,32 +70,13 @@ export function ChoreForm({ childId, initial, onSubmit, onCancel }: Props) {
         autoFocus
       />
 
-      <div>
-        <label className="text-sm font-semibold text-brand-navy block mb-2">
-          Earning type
-        </label>
-        <div className="flex gap-2">
-          {(['fixed', 'allowance'] as EarningScheme[]).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setScheme(s)}
-              className={`flex-1 py-2.5 rounded-lg border text-sm font-semibold transition-colors min-h-[44px] ${
-                scheme === s
-                  ? 'bg-brand-blue text-white border-brand-blue'
-                  : 'bg-white text-gray-600 border-gray-300'
-              }`}
-            >
-              {s === 'fixed' ? '💰 Fixed amount' : '📅 Weekly allowance'}
-            </button>
-          ))}
-        </div>
-        <p className="text-xs text-gray-500 mt-1.5">
-          {scheme === 'fixed'
-            ? 'Earns a fixed $ amount when marked complete.'
-            : 'Contributes to weekly allowance % when complete.'}
-        </p>
-      </div>
+      <ToggleGroup
+        label="Earning type"
+        options={earningOptions}
+        value={scheme}
+        onChange={setScheme}
+        description={earningDescriptions[scheme]}
+      />
 
       {scheme === 'fixed' && (
         <Input
@@ -86,36 +91,21 @@ export function ChoreForm({ childId, initial, onSubmit, onCancel }: Props) {
         />
       )}
 
-      <div>
-        <label className="text-sm font-semibold text-brand-navy block mb-2">
-          Frequency
-        </label>
-        <div className="flex gap-2">
-          {(['daily', 'weekly'] as ChoreFrequency[]).map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFrequency(f)}
-              className={`flex-1 py-2.5 rounded-lg border text-sm font-semibold transition-colors min-h-[44px] ${
-                frequency === f
-                  ? 'bg-brand-blue text-white border-brand-blue'
-                  : 'bg-white text-gray-600 border-gray-300'
-              }`}
-            >
-              {f === 'daily' ? '🔁 Every day' : '1️⃣ Once a week'}
-            </button>
-          ))}
-        </div>
-        <p className="text-xs text-gray-500 mt-1.5">
-          {frequency === 'daily'
-            ? 'Can be completed each day of the week.'
-            : 'Completed once for the whole week.'}
-        </p>
-      </div>
+      <ToggleGroup
+        label="Frequency"
+        options={frequencyOptions}
+        value={frequency}
+        onChange={setFrequency}
+        description={frequencyDescriptions[frequency]}
+      />
 
       <div className="flex gap-3 pt-2">
-        <Button variant="ghost" onClick={onCancel} className="flex-1">Cancel</Button>
-        <Button onClick={handleSubmit} className="flex-1">Save</Button>
+        <Button variant="ghost" onClick={onCancel} className="flex-1" disabled={submitting}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} className="flex-1" disabled={submitting}>
+          {submitting ? 'Saving...' : 'Save'}
+        </Button>
       </div>
     </div>
   )
