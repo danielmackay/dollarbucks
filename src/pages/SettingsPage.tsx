@@ -1,7 +1,13 @@
+import { PageHeader } from '../components/ui/PageHeader'
+import { ChildList } from '../features/children/components/ChildList'
+
 export function SettingsPage() {
   return (
-    <div className="p-4">
-      <h1 className="font-display text-2xl text-brand-navy">Settings</h1>
-    </div>
+    <main>
+      <PageHeader title="Settings" />
+      <div className="p-4 flex flex-col gap-6">
+        <ChildList />
+      </div>
+    </main>
   )
 }
