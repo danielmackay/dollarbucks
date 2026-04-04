@@ -12,16 +12,33 @@ export function isChoreComplete(chore: Chore, date?: string): boolean {
   return chore.completions[key] === true
 }
 
-/** Count how many times a chore was completed across the week. */
+/**
+ * Weighted completion count for allowance calculations.
+ * Weekly chores count as 7 when complete (equal weight to a fully-completed daily chore).
+ * Daily chores count 0-7 based on days completed.
+ */
 export function getChoreWeeklyCompletionCount(chore: Chore, weekDays: string[]): number {
+  if (chore.frequency === 'weekly') {
+    return chore.completions['week'] === true ? 7 : 0
+  }
+  return weekDays.filter((day) => chore.completions[day] === true).length
+}
+
+/** Max weighted completions for a chore in a week: 7 for both daily and weekly. */
+export function getChoreMaxCompletions(_chore: Chore): number {
+  return 7
+}
+
+/** Display completion count for UI: weekly chores show 0 or 1, daily chores show 0-7. */
+export function getChoreDisplayCompletionCount(chore: Chore, weekDays: string[]): number {
   if (chore.frequency === 'weekly') {
     return chore.completions['week'] === true ? 1 : 0
   }
   return weekDays.filter((day) => chore.completions[day] === true).length
 }
 
-/** Max possible completions for a chore in a week: 7 for daily, 1 for weekly. */
-export function getChoreMaxCompletions(chore: Chore): number {
+/** Display max completions for UI: 1 for weekly, 7 for daily. */
+export function getChoreDisplayMaxCompletions(chore: Chore): number {
   return chore.frequency === 'daily' ? 7 : 1
 }
 

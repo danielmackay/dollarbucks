@@ -31,7 +31,7 @@ function makeChore(overrides: Partial<Chore>): Chore {
   }
 }
 
-describe('getResetSummary — weekly-only chores (original behavior)', () => {
+describe('getResetSummary — weekly-only chores', () => {
   beforeEach(resetStores)
 
   it('calculates proportional allowance for partially completed week', () => {
@@ -45,9 +45,9 @@ describe('getResetSummary — weekly-only chores (original behavior)', () => {
       ],
     })
     const [summary] = getResetSummary()
-    expect(summary.allowanceEarned).toBe(2.5)  // 1/4 of $10
-    expect(summary.allowanceChoresCompleted).toBe(1)
-    expect(summary.allowanceChoresTotal).toBe(4)
+    expect(summary.allowanceEarned).toBe(2.5)         // (7/28) × $10 = same ratio as before
+    expect(summary.allowanceChoresCompleted).toBe(7)  // weighted: 1 done × 7
+    expect(summary.allowanceChoresTotal).toBe(28)     // weighted: 4 chores × 7
   })
 
   it('returns 0 earned when no allowance chores exist', () => {
@@ -87,7 +87,7 @@ describe('getResetSummary — weekly-only chores (original behavior)', () => {
       ],
     })
     const [summary] = getResetSummary()
-    expect(summary.allowanceEarned).toBe(3.33) // (1/3) × $10
+    expect(summary.allowanceEarned).toBe(3.33) // (7/21) × $10 = same ratio as before
   })
 })
 
@@ -153,7 +153,7 @@ describe('getResetSummary — daily-only chores', () => {
 describe('getResetSummary — mixed daily + weekly chores', () => {
   beforeEach(resetStores)
 
-  it('mixed: 1 daily (5/7) + 1 weekly (1/1) = 6/8', () => {
+  it('mixed: 1 daily (5/7) + 1 weekly (done) — weekly now has equal weight', () => {
     useChildrenStore.setState({ children: [jack] })
     useChoresStore.setState({
       chores: [
@@ -175,10 +175,38 @@ describe('getResetSummary — mixed daily + weekly chores', () => {
       ],
     })
     const [summary] = getResetSummary()
-    // total = 7 + 1 = 8, completed = 5 + 1 = 6
-    expect(summary.allowanceChoresTotal).toBe(8)
-    expect(summary.allowanceChoresCompleted).toBe(6)
-    expect(summary.allowanceEarned).toBe(7.5) // (6/8) × $10
+    // total = 7 + 7 = 14, completed = 5 + 7 = 12
+    expect(summary.allowanceChoresTotal).toBe(14)
+    expect(summary.allowanceChoresCompleted).toBe(12)
+    expect(summary.allowanceEarned).toBe(8.57) // (12/14) × $10 = 8.571... → 8.57
+  })
+
+  it('mixed: 1 daily (5/7) + 1 weekly (not done)', () => {
+    useChildrenStore.setState({ children: [jack] })
+    useChoresStore.setState({
+      chores: [
+        makeChore({
+          id: 'ch1',
+          name: 'Daily chore',
+          frequency: 'daily',
+          completions: {
+            '2026-04-06': true, '2026-04-07': true, '2026-04-08': true,
+            '2026-04-09': true, '2026-04-10': true,
+          },
+        }),
+        makeChore({
+          id: 'ch2',
+          name: 'Weekly chore',
+          frequency: 'weekly',
+          completions: {},
+        }),
+      ],
+    })
+    const [summary] = getResetSummary()
+    // total = 7 + 7 = 14, completed = 5 + 0 = 5
+    expect(summary.allowanceChoresTotal).toBe(14)
+    expect(summary.allowanceChoresCompleted).toBe(5)
+    expect(summary.allowanceEarned).toBe(3.57) // (5/14) × $10 = 3.571... → 3.57
   })
 
   it('mixed: none done', () => {
@@ -190,7 +218,7 @@ describe('getResetSummary — mixed daily + weekly chores', () => {
       ],
     })
     const [summary] = getResetSummary()
-    expect(summary.allowanceChoresTotal).toBe(8)
+    expect(summary.allowanceChoresTotal).toBe(14)
     expect(summary.allowanceChoresCompleted).toBe(0)
     expect(summary.allowanceEarned).toBe(0)
   })

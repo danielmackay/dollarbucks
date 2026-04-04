@@ -2,7 +2,7 @@ import type { Child } from '../../children/types'
 import type { Chore } from '../types'
 import { useAppStore } from '../../app/store'
 import { getWeekDays } from '../dateHelpers'
-import { getWeeklyProgress } from '../completionHelpers'
+import { getWeeklyProgress, getChoreDisplayCompletionCount, getChoreDisplayMaxCompletions } from '../completionHelpers'
 
 interface Props {
   child: Child
@@ -18,6 +18,8 @@ export function AllowanceProgressBar({ child, chores }: Props) {
   if (allowanceChores.length === 0) return null
   const weekDays = getWeekDays(weekStart)
   const { completed, total, pct } = getWeeklyProgress(allowanceChores, weekDays)
+  const displayCompleted = allowanceChores.reduce((sum, c) => sum + getChoreDisplayCompletionCount(c, weekDays), 0)
+  const displayTotal = allowanceChores.reduce((sum, c) => sum + getChoreDisplayMaxCompletions(c), 0)
   const projected = total === 0 ? 0 : Math.round((completed / total) * child.weeklyAllowance * 100) / 100
   const allDone = completed === total
 
@@ -32,7 +34,7 @@ export function AllowanceProgressBar({ child, chores }: Props) {
             Weekly allowance
           </div>
           <div className="text-xs font-semibold text-gray-400 mt-0.5">
-            {completed}/{total} completions · {fmt(child.weeklyAllowance)} max
+            {displayCompleted}/{displayTotal} completions · {fmt(child.weeklyAllowance)} max
           </div>
         </div>
         <div className="text-right">

@@ -16,8 +16,9 @@ export interface WeekResetSummary {
 /**
  * Pure business logic — no React hooks, usable in tests.
  * Computes a preview of what the weekly reset will post.
- * Formula: (total completions across week) / (total possible completions) × weeklyAllowance
- * Daily chores count for up to 7 completions, weekly chores count for 1.
+ * Formula: (weighted completions across week) / (total weighted slots) × weeklyAllowance
+ * Both daily and weekly chores have a max weight of 7.
+ * A completed weekly chore contributes 7 (equal to a fully completed daily chore).
  */
 export function getResetSummary(): WeekResetSummary[] {
   const { children } = useChildrenStore.getState()

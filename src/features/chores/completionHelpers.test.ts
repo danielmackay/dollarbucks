@@ -3,6 +3,8 @@ import {
   isChoreComplete,
   getChoreWeeklyCompletionCount,
   getChoreMaxCompletions,
+  getChoreDisplayCompletionCount,
+  getChoreDisplayMaxCompletions,
   getWeeklyProgress,
   getDailyProgress,
 } from './completionHelpers'
@@ -47,9 +49,9 @@ describe('isChoreComplete', () => {
 })
 
 describe('getChoreWeeklyCompletionCount', () => {
-  it('returns 1 for a completed weekly chore', () => {
+  it('returns 7 for a completed weekly chore (weighted)', () => {
     const chore = makeChore({ frequency: 'weekly', completions: { week: true } })
-    expect(getChoreWeeklyCompletionCount(chore, weekDays)).toBe(1)
+    expect(getChoreWeeklyCompletionCount(chore, weekDays)).toBe(7)
   })
 
   it('returns 0 for an incomplete weekly chore', () => {
@@ -75,13 +77,42 @@ describe('getChoreMaxCompletions', () => {
     expect(getChoreMaxCompletions(makeChore({ frequency: 'daily' }))).toBe(7)
   })
 
+  it('returns 7 for a weekly chore (equal weight to daily)', () => {
+    expect(getChoreMaxCompletions(makeChore({ frequency: 'weekly' }))).toBe(7)
+  })
+})
+
+describe('getChoreDisplayCompletionCount', () => {
+  it('returns 1 for a completed weekly chore', () => {
+    const chore = makeChore({ frequency: 'weekly', completions: { week: true } })
+    expect(getChoreDisplayCompletionCount(chore, weekDays)).toBe(1)
+  })
+
+  it('returns 0 for an incomplete weekly chore', () => {
+    const chore = makeChore({ frequency: 'weekly', completions: {} })
+    expect(getChoreDisplayCompletionCount(chore, weekDays)).toBe(0)
+  })
+
+  it('returns daily completion count for a daily chore', () => {
+    const chore = makeChore({
+      completions: { '2026-04-06': true, '2026-04-07': true, '2026-04-08': true },
+    })
+    expect(getChoreDisplayCompletionCount(chore, weekDays)).toBe(3)
+  })
+})
+
+describe('getChoreDisplayMaxCompletions', () => {
+  it('returns 7 for a daily chore', () => {
+    expect(getChoreDisplayMaxCompletions(makeChore({ frequency: 'daily' }))).toBe(7)
+  })
+
   it('returns 1 for a weekly chore', () => {
-    expect(getChoreMaxCompletions(makeChore({ frequency: 'weekly' }))).toBe(1)
+    expect(getChoreDisplayMaxCompletions(makeChore({ frequency: 'weekly' }))).toBe(1)
   })
 })
 
 describe('getWeeklyProgress', () => {
-  it('calculates progress for mixed daily and weekly chores', () => {
+  it('calculates weighted progress for mixed daily and weekly chores', () => {
     const chores = [
       makeChore({
         id: 'c1',
@@ -106,11 +137,11 @@ describe('getWeeklyProgress', () => {
         completions: { week: true },
       }),
     ]
-    // total = 7 + 7 + 1 = 15, completed = 3 + 2 + 1 = 6
+    // total = 7 + 7 + 7 = 21, completed = 3 + 2 + 7 = 12
     const result = getWeeklyProgress(chores, weekDays)
-    expect(result.total).toBe(15)
-    expect(result.completed).toBe(6)
-    expect(result.pct).toBe(40)
+    expect(result.total).toBe(21)
+    expect(result.completed).toBe(12)
+    expect(result.pct).toBe(57) // Math.round(12/21 * 100) = 57
   })
 
   it('returns zeros for empty chore list', () => {
