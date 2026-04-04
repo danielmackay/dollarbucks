@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useShallow } from 'zustand/react/shallow'
 import { useChoresStore } from '../../chores/store'
 import { useLedgerStore } from '../../ledger/store'
 import { BalanceBadge } from '../../../components/ui/BalanceBadge'
@@ -10,7 +11,7 @@ interface Props {
 
 export function ChildCard({ child }: Props) {
   const navigate = useNavigate()
-  const chores = useChoresStore((s) => s.chores.filter((c) => c.childId === child.id))
+  const chores = useChoresStore(useShallow((s) => s.chores.filter((c) => c.childId === child.id)))
   const balance = useLedgerStore((s) => s.getBalanceForChild(child.id))
 
   const totalChores = chores.length

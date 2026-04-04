@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { useShallow } from 'zustand/react/shallow'
 import { useChildrenStore } from '../features/children/store'
 import { useLedgerStore } from '../features/ledger/store'
 import { LedgerEntryRow } from '../features/ledger/components/LedgerEntryRow'
@@ -8,7 +9,7 @@ import { PageHeader } from '../components/ui/PageHeader'
 export function LedgerPage() {
   const { childId } = useParams<{ childId: string }>()
   const child = useChildrenStore((s) => s.children.find((c) => c.id === childId))
-  const entries = useLedgerStore((s) => s.getEntriesForChild(childId!))
+  const entries = useLedgerStore(useShallow((s) => s.getEntriesForChild(childId!)))
   const balance = useLedgerStore((s) => s.getBalanceForChild(childId!))
 
   if (!child) {

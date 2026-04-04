@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useShallow } from 'zustand/react/shallow'
 import { useChildrenStore } from '../features/children/store'
 import { useChoresStore } from '../features/chores/store'
 import { useLedgerStore } from '../features/ledger/store'
@@ -14,7 +15,7 @@ export function ChildDetailPage() {
   const { childId } = useParams<{ childId: string }>()
   const navigate = useNavigate()
   const child = useChildrenStore((s) => s.children.find((c) => c.id === childId))
-  const chores = useChoresStore((s) => s.chores.filter((c) => c.childId === childId))
+  const chores = useChoresStore(useShallow((s) => s.chores.filter((c) => c.childId === childId)))
   const balance = useLedgerStore((s) => s.getBalanceForChild(childId!))
   const [withdrawOpen, setWithdrawOpen] = useState(false)
 
