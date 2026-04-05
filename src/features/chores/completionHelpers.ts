@@ -24,8 +24,9 @@ export function getChoreWeeklyCompletionCount(chore: Chore, weekDays: string[]):
   return weekDays.filter((day) => chore.completions[day] === true).length
 }
 
-/** Max weighted completions for a chore: weekDays.length for both daily and weekly. */
-export function getChoreMaxCompletions(_chore: Chore, weekDays: string[]): number {
+/** Max weighted completions for a chore: always 7 for weekly (equal weight to a full daily), weekDays.length for daily. */
+export function getChoreMaxCompletions(chore: Chore, weekDays: string[]): number {
+  if (chore.frequency === 'weekly') return 7
   return weekDays.length
 }
 

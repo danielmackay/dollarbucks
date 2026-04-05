@@ -81,9 +81,43 @@ describe('getChoreMaxCompletions', () => {
     expect(getChoreMaxCompletions(makeChore({ frequency: 'weekly' }), weekDays)).toBe(7)
   })
 
-  it('returns the number of days passed in', () => {
+  it('returns the number of days passed in for a daily chore', () => {
     const threeDays = weekDays.slice(0, 3)
     expect(getChoreMaxCompletions(makeChore({ frequency: 'daily' }), threeDays)).toBe(3)
+  })
+
+  it('returns 7 for a weekly chore even with a partial weekDays array', () => {
+    // Bug: when weekDays is filtered to 1 day, getChoreWeeklyCompletionCount returns 7
+    // but getChoreMaxCompletions returned 1 → ratio = 7, allowance × 7 = way over budget
+    const oneDayWeek = ['2026-04-06']
+    expect(getChoreMaxCompletions(makeChore({ frequency: 'weekly' }), oneDayWeek)).toBe(7)
+  })
+})
+
+describe('getWeeklyProgress with partial weekDays', () => {
+  it('never exceeds 100% when weekly chore is complete and weekDays is partial', () => {
+    const oneDayWeek = ['2026-04-06']
+    const chores = [
+      makeChore({ id: 'c1', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c2', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c3', frequency: 'weekly', completions: { week: true } }),
+    ]
+    const { pct } = getWeeklyProgress(chores, oneDayWeek)
+    expect(pct).toBeLessThanOrEqual(100)
+  })
+
+  it('projected allowance never exceeds weeklyAllowance with partial weekDays', () => {
+    const weeklyAllowance = 4
+    const oneDayWeek = ['2026-04-06']
+    const chores = [
+      makeChore({ id: 'c1', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c2', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c3', frequency: 'weekly', completions: { week: true } }),
+    ]
+    const { completed, total } = getWeeklyProgress(chores, oneDayWeek)
+    const ratio = total === 0 ? 0 : completed / total
+    const projected = Math.round(weeklyAllowance * ratio * 100) / 100
+    expect(projected).toBeLessThanOrEqual(weeklyAllowance)
   })
 })
 
