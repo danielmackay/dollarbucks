@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { BottomNav } from './components/layout/BottomNav'
+import { UpdatePrompt } from './components/UpdatePrompt'
 import { HomePage } from './pages/HomePage'
 import { ChildDetailPage } from './pages/ChildDetailPage'
 import { LedgerPage } from './pages/LedgerPage'
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <BottomNav />
+      <UpdatePrompt />
       {import.meta.env.DEV && (
         <Suspense fallback={null}>
           <DevDatePicker />
