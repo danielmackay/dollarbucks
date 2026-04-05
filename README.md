@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+# Dollarbucks
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Dollarbucks home screen](docs/screenshot-home.png)
 
-Currently, two official plugins are available:
+A mobile-first PWA for managing children's allowances and chores. Parents define chores per child; chores either pay a fixed amount immediately or contribute weighted credit toward a weekly allowance.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Chore tracking** — mark chores complete per day or per week
+- **Two earning models** — fixed-pay chores post ledger entries instantly; allowance-weighted chores settle on weekly reset
+- **Ledger** — full transaction history per child with running balance
+- **Weekly reset** — distributes allowance based on chore completion percentage
+- **Offline support** — PWA with service worker caching (production builds)
+- **Dev date picker** — override the current date to test weekly reset flows
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+| Layer     | Tool                                       |
+| --------- | ------------------------------------------ |
+| UI        | React 19 + Tailwind CSS                    |
+| State     | Zustand (persisted to localStorage)        |
+| Routing   | React Router v7                            |
+| Icons     | Phosphor Icons                             |
+| Build     | Vite + TypeScript                          |
+| Unit tests | Vitest + Testing Library                  |
+| E2E tests | Playwright (mobile Chromium, 375×667px)    |
+| Runtime   | Bun                                        |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun install
+bun dev          # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Commands
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun dev              # Start dev server
+bun run build        # Type-check + bundle
+bun run lint         # ESLint
+bun test:unit        # Vitest unit tests
+bun test:e2e         # Playwright E2E (auto-starts dev server)
+bun test:e2e:ui      # Interactive Playwright runner
 ```
+
+Run a single test file:
+
+```bash
+bun test:unit -- src/features/chores/useChoreActions.test.ts
+bun test:e2e -- chores.spec.ts
+```
+
+## Project Structure
+
+```text
+src/
+  features/
+    app/        # Global date state
+    children/   # Child profiles (name, avatar, weekly allowance)
+    chores/     # Chore definitions, completion tracking, toggle logic
+    ledger/     # Transaction log and weekly reset
+  components/
+    ui/         # Shared primitives (Button, Input, Modal, ToggleGroup)
+  pages/        # Route targets (Home, ChildDetail, Ledger, Settings)
+```
+
+## Earning Models
+
+Chores use one of two `earningType` values:
+
+- **`fixed`** — completing the chore immediately posts a ledger entry for the specified amount; un-completing reverses it
+- **`allowance`** — completion is tracked but no money moves until the weekly reset, which distributes the child's `weeklyAllowance` weighted by what percentage of allowance-type chores were completed
