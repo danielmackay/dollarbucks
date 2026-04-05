@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .opencode/plans/
 docs/plans/
+
+# Playwright
+test-results/
+playwright-report/
