@@ -34,7 +34,7 @@ const frequencyDescriptions: Record<ChoreFrequency, string> = {
 
 export function ChoreForm({ childId, initial, onSubmit, onCancel }: Props) {
   const [name, setName] = useState(initial?.name ?? '')
-  const [scheme, setScheme] = useState<EarningScheme>(initial?.scheme ?? 'fixed')
+  const [scheme, setScheme] = useState<EarningScheme>(initial?.scheme ?? 'allowance')
   const [frequency, setFrequency] = useState<ChoreFrequency>(initial?.frequency ?? 'daily')
   const [amount, setAmount] = useState(initial?.fixedAmount?.toString() ?? '')
   const [nameError, setNameError] = useState('')
