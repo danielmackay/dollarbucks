@@ -6,6 +6,7 @@ import {
   getChoreDisplayCompletionCount,
   getChoreDisplayMaxCompletions,
   getWeeklyProgress,
+  getAllowanceProjection,
   getDailyProgress,
 } from './completionHelpers'
 import type { Chore } from './types'
@@ -185,6 +186,43 @@ describe('getWeeklyProgress', () => {
 
   it('returns zeros for empty chore list', () => {
     expect(getWeeklyProgress([], weekDays)).toEqual({ completed: 0, total: 0, pct: 0 })
+  })
+})
+
+describe('getAllowanceProjection', () => {
+  it('completing all chores on day 1 of 7 projects less than full allowance', () => {
+    const oneDayWeek = ['2026-04-06']
+    const chores = [
+      makeChore({ id: 'c1', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c2', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c3', frequency: 'weekly', completions: { week: true } }),
+    ]
+    // completed uses partial (only Mon): daily × 1 each + weekly × 7 = 9
+    // total uses full week: daily × 7 each + weekly × 7 = 21
+    // ratio = 9/21 ≈ 0.43, projected = $4 × 0.43 = $1.71
+    const result = getAllowanceProjection(chores, oneDayWeek, weekDays, 4)
+    expect(result.pct).toBe(43)
+    expect(result.projected).toBe(1.71)
+  })
+
+  it('completing all chores every day projects the full allowance', () => {
+    const allCompleted = {
+      '2026-04-06': true,
+      '2026-04-07': true,
+      '2026-04-08': true,
+      '2026-04-09': true,
+      '2026-04-10': true,
+      '2026-04-11': true,
+      '2026-04-12': true,
+    }
+    const chores = [
+      makeChore({ id: 'c1', frequency: 'daily', completions: allCompleted }),
+      makeChore({ id: 'c2', frequency: 'daily', completions: allCompleted }),
+      makeChore({ id: 'c3', frequency: 'weekly', completions: { week: true } }),
+    ]
+    const result = getAllowanceProjection(chores, weekDays, weekDays, 4)
+    expect(result.pct).toBe(100)
+    expect(result.projected).toBe(4)
   })
 })
 

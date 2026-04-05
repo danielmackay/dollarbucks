@@ -1,6 +1,6 @@
 import { useAppStore } from '../../app/store'
 import { getWeekDays, getDayLabel } from '../dateHelpers'
-import { getDailyProgress, getWeeklyProgress } from '../completionHelpers'
+import { getDailyProgress, getAllowanceProjection } from '../completionHelpers'
 import type { Chore } from '../types'
 
 interface Props {
@@ -12,7 +12,9 @@ export function WeeklySummary({ chores }: Props) {
   const today = useAppStore((s) => s.currentDate)
   const weekDays = getWeekDays(weekStart)
   const daysUpToToday = weekDays.filter((d) => d <= today)
-  const { pct: weeklyPct } = getWeeklyProgress(chores, daysUpToToday)
+  const allowanceChores = chores.filter((c) => c.scheme === 'allowance')
+  // pct uses full weekDays as denominator so partial-week completion doesn't show 100%
+  const { pct: weeklyPct } = getAllowanceProjection(allowanceChores, daysUpToToday, weekDays, 1)
 
   const hasDailyChores = chores.some((c) => c.frequency === 'daily')
 

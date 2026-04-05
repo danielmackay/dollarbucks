@@ -43,6 +43,28 @@ export function getChoreDisplayMaxCompletions(chore: Chore): number {
   return chore.frequency === 'daily' ? 7 : 1
 }
 
+/**
+ * Projected allowance at weekly reset.
+ * completedWeekDays: days to count completions from (typically days elapsed so far).
+ * fullWeekDays: days used for the max denominator (always the full 7-day week).
+ * Keeping these separate prevents partial-week completion from inflating the ratio.
+ */
+export function getAllowanceProjection(
+  chores: Chore[],
+  completedWeekDays: string[],
+  fullWeekDays: string[],
+  weeklyAllowance: number
+): { completed: number; total: number; pct: number; projected: number } {
+  const completed = chores.reduce(
+    (sum, c) => sum + getChoreWeeklyCompletionCount(c, completedWeekDays),
+    0
+  )
+  const total = chores.reduce((sum, c) => sum + getChoreMaxCompletions(c, fullWeekDays), 0)
+  const pct = total === 0 ? 0 : Math.round((completed / total) * 100)
+  const projected = total === 0 ? 0 : Math.round((completed / total) * weeklyAllowance * 100) / 100
+  return { completed, total, pct, projected }
+}
+
 /** Aggregate weekly progress across a set of chores. */
 export function getWeeklyProgress(
   chores: Chore[],
