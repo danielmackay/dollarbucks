@@ -5,7 +5,7 @@ import { useChoresStore } from '../../chores/store'
 import { useLedgerStore } from '../../ledger/store'
 import { useAppStore } from '../../app/store'
 import { getWeekDays } from '../../chores/dateHelpers'
-import { getWeeklyProgress } from '../../chores/completionHelpers'
+import { getWeeklyProgress, getChoreDisplayCompletionCount, getChoreDisplayMaxCompletions } from '../../chores/completionHelpers'
 import type { Child } from '../types'
 
 interface Props {
@@ -20,7 +20,9 @@ export function ChildCard({ child }: Props) {
   const today = useAppStore((s) => s.currentDate)
 
   const weekDays = getWeekDays(weekStart).filter((d) => d <= today)
-  const { completed: completedChores, total: totalChores, pct: progressPct } = getWeeklyProgress(chores, weekDays)
+  const { pct: progressPct } = getWeeklyProgress(chores, weekDays)
+  const completedChores = chores.reduce((sum, c) => sum + getChoreDisplayCompletionCount(c, weekDays), 0)
+  const totalChores = chores.reduce((sum, c) => sum + getChoreDisplayMaxCompletions(c), 0)
   const allDone = totalChores > 0 && completedChores === totalChores
   const isNegative = balance < 0
 
