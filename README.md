@@ -71,5 +71,3 @@ Chores use one of two `earningType` values:
 
 - **`fixed`** — completing the chore immediately posts a ledger entry for the specified amount; un-completing reverses it
 - **`allowance`** — completion is tracked but no money moves until the weekly reset, which distributes the child's `weeklyAllowance` weighted by what percentage of allowance-type chores were completed
-
-TEST DEPLOYMENT
