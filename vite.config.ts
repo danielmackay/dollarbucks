@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       manifest: {
         name: 'Dollarbucks',
         short_name: 'Dollarbucks',
