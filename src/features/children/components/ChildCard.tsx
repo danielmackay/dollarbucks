@@ -19,9 +19,11 @@ export function ChildCard({ child }: Props) {
   const weekStart = useAppStore((s) => s.currentWeekStartDate)
   const today = useAppStore((s) => s.currentDate)
 
-  const weekDays = getWeekDays(weekStart).filter((d) => d <= today)
-  const { pct: progressPct } = getWeeklyProgress(chores, weekDays)
-  const completedChores = chores.reduce((sum, c) => sum + getChoreDisplayCompletionCount(c, weekDays), 0)
+  const fullWeekDays = getWeekDays(weekStart)
+  const partialWeekDays = fullWeekDays.filter((d) => d <= today)
+  // Use fullWeekDays as max denominator so partial-week completion doesn't inflate the %
+  const { pct: progressPct } = getWeeklyProgress(chores, partialWeekDays, fullWeekDays)
+  const completedChores = chores.reduce((sum, c) => sum + getChoreDisplayCompletionCount(c, partialWeekDays), 0)
   const totalChores = chores.reduce((sum, c) => sum + getChoreDisplayMaxCompletions(c), 0)
   const allDone = totalChores > 0 && completedChores === totalChores
   const isNegative = balance < 0

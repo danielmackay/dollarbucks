@@ -189,6 +189,23 @@ describe('getWeeklyProgress', () => {
   })
 })
 
+describe('getChoreCardProgress', () => {
+  it('completing all chores on day 1 of 7 shows less than 100% on the home card', () => {
+    // ChildCard calls getWeeklyProgress(chores, partialWeekDays) where partialWeekDays = [Monday].
+    // Bug: completed=9, total=9 (weekly max=7, daily max=1 each) → 100%.
+    // Fix: ChildCard must use fullWeekDays as the max denominator → total=21, pct=43%.
+    const oneDayWeek = ['2026-04-06']
+    const chores = [
+      makeChore({ id: 'c1', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c2', frequency: 'daily', completions: { '2026-04-06': true } }),
+      makeChore({ id: 'c3', frequency: 'weekly', completions: { week: true } }),
+    ]
+    // Pass fullWeekDays as maxWeekDays so partial completion doesn't inflate the denominator
+    const { pct } = getWeeklyProgress(chores, oneDayWeek, weekDays)
+    expect(pct).toBe(43)
+  })
+})
+
 describe('getAllowanceProjection', () => {
   it('completing all chores on day 1 of 7 projects less than full allowance', () => {
     const oneDayWeek = ['2026-04-06']
