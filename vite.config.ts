@@ -2,8 +2,25 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { execSync } from 'child_process'
+
+function getGitCommit(short: boolean): string {
+  try {
+    return execSync(short ? 'git rev-parse --short HEAD' : 'git rev-parse HEAD')
+      .toString()
+      .trim()
+  } catch {
+    return 'dev'
+  }
+}
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.0.0'),
+    __GIT_COMMIT_SHORT__: JSON.stringify(getGitCommit(true)),
+    __GIT_COMMIT_FULL__: JSON.stringify(getGitCommit(false)),
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
