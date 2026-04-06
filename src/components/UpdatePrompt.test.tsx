@@ -37,11 +37,14 @@ describe('UpdatePrompt', () => {
 
     render(<UpdatePrompt />)
 
-    expect(mockUpdate).not.toHaveBeenCalled()
-    vi.advanceTimersByTime(60 * 1000)
+    // Called immediately on registration
     expect(mockUpdate).toHaveBeenCalledTimes(1)
-    vi.advanceTimersByTime(60 * 1000)
+
+    // Called again after each 15-minute interval
+    vi.advanceTimersByTime(15 * 60 * 1000)
     expect(mockUpdate).toHaveBeenCalledTimes(2)
+    vi.advanceTimersByTime(15 * 60 * 1000)
+    expect(mockUpdate).toHaveBeenCalledTimes(3)
 
     vi.useRealTimers()
   })
