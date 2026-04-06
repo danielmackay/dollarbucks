@@ -35,7 +35,7 @@ export const useAppStore = create<AppStore>()(
       name: 'dollarbucks-app',
       version: 1,
       partialize: (state) => ({ currentWeekStartDate: state.currentWeekStartDate }),
-      migrate: (_persisted, _version) => ({
+      migrate: () => ({
         // Recompute week start using the fixed local-date formula,
         // discarding any stale UTC-shifted value from previous versions.
         currentWeekStartDate: getMondayOfThisWeek(),

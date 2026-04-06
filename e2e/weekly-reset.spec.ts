@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { seedAndNavigate, clearStorage, makeChild, makeChore } from './helpers/storage'
+import { seedAndNavigate, makeChild, makeChore } from './helpers/storage'
 
 test.describe('Weekly Reset', () => {
   test('shows reset summary with allowance children', async ({ page }) => {

@@ -21,6 +21,7 @@ export function Modal({ open, onClose, title, children }: Props) {
       // Trigger animation on next frame
       requestAnimationFrame(() => setVisible(true))
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false)
       document.body.style.overflow = ''
     }
