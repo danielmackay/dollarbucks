@@ -156,7 +156,6 @@ export function SettingsPage() {
           {showDebug && (
             <div className="mt-2 space-y-0.5 font-mono">
               <div>Hash: {__GIT_COMMIT_SHORT__}</div>
-              <div className="break-all">Commit: {__GIT_COMMIT_FULL__}</div>
               <div>Built: {new Date(__BUILD_DATE__).toLocaleString()}</div>
               <div>Env: {import.meta.env.MODE}</div>
             </div>
