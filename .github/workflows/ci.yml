@@ -46,7 +46,7 @@ jobs:
         run: bun run build
 
       - name: Unit tests
-        run: bun test:unit -- --reporter=verbose --reporter=junit --outputFile.junit=test-results/unit-junit.xml
+        run: bun test:unit -- --reporter=verbose --reporter=junit --outputFile.junit=unit-test-results/unit-junit.xml
 
       - name: Install Playwright browsers
         run: bunx playwright install chromium --with-deps
@@ -59,7 +59,7 @@ jobs:
         if: always()
         with:
           name: Unit Tests
-          path: test-results/unit-junit.xml
+          path: unit-test-results/unit-junit.xml
           reporter: jest-junit
 
       - name: Report E2E test results
@@ -67,7 +67,7 @@ jobs:
         if: always()
         with:
           name: E2E Tests
-          path: test-results/e2e-junit.xml
+          path: e2e-test-results/e2e-junit.xml
           reporter: jest-junit
 
       - name: Upload Playwright report
