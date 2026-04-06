@@ -8,11 +8,18 @@ export function UpdatePrompt() {
 
   const { updateServiceWorker } = useRegisterSW({
     onRegisteredSW(_swUrl, registration) {
-      if (registration) {
-        setInterval(() => {
-          registration.update()
-        }, 60 * 1000) // Check every 60 seconds
-      }
+      if (!registration) return
+
+      // Check immediately on launch
+      registration.update()
+
+      // Check every 15 minutes
+      setInterval(() => registration.update(), 15 * 60 * 1000)
+
+      // Check when app returns to foreground (e.g. re-opening PWA)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') registration.update()
+      })
     },
     onNeedRefresh() {
       setNeedRefresh(true)
