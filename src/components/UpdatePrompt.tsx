@@ -7,6 +7,13 @@ export function UpdatePrompt() {
   const [needRefresh, setNeedRefresh] = useState(false)
 
   const { updateServiceWorker } = useRegisterSW({
+    onRegisteredSW(_swUrl, registration) {
+      if (registration) {
+        setInterval(() => {
+          registration.update()
+        }, 60 * 1000) // Check every 60 seconds
+      }
+    },
     onNeedRefresh() {
       setNeedRefresh(true)
     },

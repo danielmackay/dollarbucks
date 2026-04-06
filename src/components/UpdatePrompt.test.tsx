@@ -26,6 +26,26 @@ describe('UpdatePrompt', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
+  it('sets up periodic SW update check on registration', () => {
+    vi.useFakeTimers()
+    const mockUpdate = vi.fn()
+
+    mockUseRegisterSW.mockImplementation(({ onRegisteredSW }: { onRegisteredSW: (url: string, r: ServiceWorkerRegistration) => void }) => {
+      onRegisteredSW('sw.js', { update: mockUpdate } as unknown as ServiceWorkerRegistration)
+      return { updateServiceWorker: mockUpdateServiceWorker }
+    })
+
+    render(<UpdatePrompt />)
+
+    expect(mockUpdate).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(60 * 1000)
+    expect(mockUpdate).toHaveBeenCalledTimes(1)
+    vi.advanceTimersByTime(60 * 1000)
+    expect(mockUpdate).toHaveBeenCalledTimes(2)
+
+    vi.useRealTimers()
+  })
+
   it('shows the modal when onNeedRefresh is called', () => {
     let capturedOnNeedRefresh: (() => void) | undefined
 
