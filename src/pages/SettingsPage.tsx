@@ -13,6 +13,7 @@ export function SettingsPage() {
   const children = useChildrenStore((s) => s.children)
   const [resetOpen, setResetOpen] = useState(false)
   const [nukeOpen, setNukeOpen] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
 
   function handleNuke() {
     useChildrenStore.getState().clearAll()
@@ -145,6 +146,22 @@ export function SettingsPage() {
             </Button>
           </div>
         </section>
+
+        {/* ── Version footer ── */}
+        <div
+          className="text-xs text-gray-400 text-center cursor-pointer select-none pt-2"
+          onClick={() => setShowDebug((v) => !v)}
+        >
+          <span>v{__APP_VERSION__}</span>
+          {showDebug && (
+            <div className="mt-2 space-y-0.5 font-mono">
+              <div>Hash: {__GIT_COMMIT_SHORT__}</div>
+              <div className="break-all">Commit: {__GIT_COMMIT_FULL__}</div>
+              <div>Built: {new Date(__BUILD_DATE__).toLocaleString()}</div>
+              <div>Env: {import.meta.env.MODE}</div>
+            </div>
+          )}
+        </div>
 
       </div>
 
