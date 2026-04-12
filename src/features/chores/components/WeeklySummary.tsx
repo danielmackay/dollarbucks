@@ -1,5 +1,5 @@
 import { useAppStore } from '../../app/store'
-import { getWeekDays, getDayLabel } from '../dateHelpers'
+import { getWeekDays, getDayLabel, getToday } from '../dateHelpers'
 import { getDailyProgress, getAllowanceProjection } from '../completionHelpers'
 import type { Chore } from '../types'
 
@@ -9,9 +9,11 @@ interface Props {
 
 export function WeeklySummary({ chores }: Props) {
   const weekStart = useAppStore((s) => s.currentWeekStartDate)
-  const today = useAppStore((s) => s.currentDate)
+  const selectedDate = useAppStore((s) => s.currentDate)
+  const setCurrentDate = useAppStore((s) => s.setCurrentDate)
+  const realToday = getToday()
   const weekDays = getWeekDays(weekStart)
-  const daysUpToToday = weekDays.filter((d) => d <= today)
+  const daysUpToToday = weekDays.filter((d) => d <= realToday)
   const allowanceChores = chores.filter((c) => c.scheme === 'allowance')
   // pct uses full weekDays as denominator so partial-week completion doesn't show 100%
   const { pct: weeklyPct } = getAllowanceProjection(allowanceChores, daysUpToToday, weekDays, 1)
@@ -32,25 +34,32 @@ export function WeeklySummary({ chores }: Props) {
       {/* Day-by-day breakdown */}
       <div className="flex gap-1">
         {weekDays.map((day) => {
-          const isPast = day < today
-          const isCurrent = day === today
-          const isFuture = day > today
+          const isFuture = day > realToday
+          const isSelected = day === selectedDate
+          const isRealToday = day === realToday
           const { completed, total, pct } = getDailyProgress(chores, day)
-          const hasData = hasDailyChores && (isPast || isCurrent)
+          const hasData = hasDailyChores && !isFuture
 
           return (
-            <div
+            <button
               key={day}
+              type="button"
+              disabled={isFuture}
+              aria-pressed={isSelected}
+              aria-label={`View ${getDayLabel(day)} chores`}
+              onClick={() => setCurrentDate(day)}
               className={`flex-1 flex flex-col items-center gap-1.5 py-2 rounded-xl transition-colors ${
-                isCurrent
-                  ? 'bg-brand-blue/10 ring-2 ring-brand-blue/20'
-                  : ''
+                isSelected
+                  ? 'bg-brand-blue/10 ring-2 ring-brand-blue/40'
+                  : isFuture
+                  ? 'cursor-not-allowed'
+                  : 'active:bg-brand-blue/5'
               }`}
             >
               {/* Day label */}
               <span
                 className={`text-[10px] font-bold uppercase tracking-wide ${
-                  isCurrent
+                  isSelected
                     ? 'text-brand-blue'
                     : isFuture
                     ? 'text-gray-300'
@@ -77,11 +86,15 @@ export function WeeklySummary({ chores }: Props) {
 
               {/* Completion count */}
               {hasData && total > 0 && (
-                <span className="text-[9px] font-semibold text-gray-400">
+                <span
+                  className={`text-[9px] font-semibold ${
+                    isRealToday && !isSelected ? 'text-brand-blue/60' : 'text-gray-400'
+                  }`}
+                >
                   {completed}/{total}
                 </span>
               )}
-            </div>
+            </button>
           )
         })}
       </div>

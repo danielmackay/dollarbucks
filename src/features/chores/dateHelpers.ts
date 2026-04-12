@@ -1,4 +1,13 @@
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
+const DAY_NAMES = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+] as const
 
 /** Format a Date as "YYYY-MM-DD" using local time (avoids UTC shift from toISOString). */
 export function formatLocalDate(d: Date): string {
@@ -46,6 +55,12 @@ export function getWeekDays(weekStart: string): string[] {
 export function getDayLabel(isoDate: string): string {
   const d = new Date(isoDate + 'T00:00:00')
   return DAY_LABELS[d.getDay()]
+}
+
+/** Returns a full day name like "Monday", "Tuesday", etc. */
+export function getDayName(isoDate: string): string {
+  const d = new Date(isoDate + 'T00:00:00')
+  return DAY_NAMES[d.getDay()]
 }
 
 /** Returns true if the given ISO date is today. */

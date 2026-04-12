@@ -5,6 +5,8 @@ import { ArrowLeft, Coin, ClipboardText, ArrowFatLineDown, ChartBar } from '@pho
 import { useChildrenStore } from '../features/children/store'
 import { useChoresStore } from '../features/chores/store'
 import { useLedgerStore } from '../features/ledger/store'
+import { useAppStore } from '../features/app/store'
+import { getToday, getDayName } from '../features/chores/dateHelpers'
 import { ChoreItem } from '../features/chores/components/ChoreItem'
 import { AllowanceProgressBar } from '../features/chores/components/AllowanceProgressBar'
 import { WeeklySummary } from '../features/chores/components/WeeklySummary'
@@ -21,6 +23,9 @@ export function ChildDetailPage() {
   const child = useChildrenStore((s) => s.children.find((c) => c.id === childId))
   const chores = useChoresStore(useShallow((s) => s.chores.filter((c) => c.childId === childId)))
   const balance = useLedgerStore((s) => s.getBalanceForChild(childId!))
+  const selectedDate = useAppStore((s) => s.currentDate)
+  const viewingToday = selectedDate === getToday()
+  const choreListTitle = viewingToday ? "Today's chores" : `${getDayName(selectedDate)}'s chores`
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
 
@@ -119,7 +124,7 @@ export function ChildDetailPage() {
       {/* ── Chore list ── */}
       <div className="px-4 mt-5">
         <h2 className="font-display text-lg font-extrabold text-brand-navy mb-3">
-          Today's chores
+          {choreListTitle}
         </h2>
         {chores.length === 0 ? (
           <p className="text-gray-400 font-semibold text-sm py-4 text-center">

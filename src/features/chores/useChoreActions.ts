@@ -21,9 +21,10 @@ export function toggleChore(chore: Chore, date?: string) {
         description: chore.name,
         amount: chore.fixedAmount,
         type: 'chore_fixed',
+        date,
       })
     } else {
-      useLedgerStore.getState().reverseChoreEntry(chore.childId, chore.name)
+      useLedgerStore.getState().reverseChoreEntry(chore.childId, chore.name, date)
     }
   }
   // allowance chores: no ledger entry

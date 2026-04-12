@@ -88,6 +88,36 @@ describe('toggleChore — fixed daily scheme', () => {
     expect(completions['2026-04-06']).toBe(true)
     expect(completions['2026-04-07']).toBe(true)
   })
+
+  it('back-dates the ledger entry to the selected day', () => {
+    useChoresStore.setState({ chores: [baseFixedDaily] })
+    toggleChore(baseFixedDaily, '2026-04-06')
+
+    const entry = useLedgerStore.getState().entries[0]
+    expect(entry.date.startsWith('2026-04-06')).toBe(true)
+  })
+
+  it('un-toggling a past day removes only that day\'s ledger entry', () => {
+    // Two entries for the same chore on different days; un-toggle Monday should leave Friday
+    const withBoth = {
+      ...baseFixedDaily,
+      completions: { '2026-04-06': true, '2026-04-10': true },
+    }
+    useChoresStore.setState({ chores: [withBoth] })
+    useLedgerStore.setState({
+      entries: [
+        { id: 'mon', childId: 'kid1', date: '2026-04-06T12:00:00.000Z', description: 'Make bed', amount: 0.5, type: 'chore_fixed' },
+        { id: 'fri', childId: 'kid1', date: '2026-04-10T12:00:00.000Z', description: 'Make bed', amount: 0.5, type: 'chore_fixed' },
+      ],
+    })
+
+    toggleChore(useChoresStore.getState().chores[0], '2026-04-06')
+
+    const remaining = useLedgerStore.getState().entries.map((e) => e.id)
+    expect(remaining).toEqual(['fri'])
+    expect(useChoresStore.getState().chores[0].completions['2026-04-06']).toBe(false)
+    expect(useChoresStore.getState().chores[0].completions['2026-04-10']).toBe(true)
+  })
 })
 
 describe('toggleChore — allowance scheme', () => {
